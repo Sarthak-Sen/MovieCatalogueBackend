@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36811.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieCatalogue.Api", "MovieCatalogue.Api\MovieCatalogue.Api.csproj", "{575EE81A-8832-4618-A59A-66956DC0EA29}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieCatalogue.RankingTrainer", "MovieCatalogue.RankingTrainer\MovieCatalogue.RankingTrainer.csproj", "{B0DA5B6A-51C4-4AD3-A13D-D24341052040}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{575EE81A-8832-4618-A59A-66956DC0EA29}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{575EE81A-8832-4618-A59A-66956DC0EA29}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{575EE81A-8832-4618-A59A-66956DC0EA29}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{575EE81A-8832-4618-A59A-66956DC0EA29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0DA5B6A-51C4-4AD3-A13D-D24341052040}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0DA5B6A-51C4-4AD3-A13D-D24341052040}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0DA5B6A-51C4-4AD3-A13D-D24341052040}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0DA5B6A-51C4-4AD3-A13D-D24341052040}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E016B7DC-E147-43A0-9A4A-6C662FE2575A}
+	EndGlobalSection
+EndGlobal

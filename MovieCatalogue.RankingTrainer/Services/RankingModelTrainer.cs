@@ -65,7 +65,8 @@ namespace MovieCatalogue.RankingTrainer.Services
 
             _mlContext.Model.Save(model, schema, outputPath);
 
-            Console.WriteLine($"Model saved to: {outputPath}");
+            Console.WriteLine("Saving model to:");
+            Console.WriteLine(Path.GetFullPath(outputPath));
         }
 
         private void PrintMetrics(RegressionMetrics metrics)

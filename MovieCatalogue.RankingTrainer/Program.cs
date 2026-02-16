@@ -1,40 +1,49 @@
-﻿using Microsoft.ML;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
+using MovieCatalogue.Api.Data;
 using MovieCatalogue.RankingTrainer.Services;
 
-var mlContext = new MLContext(seed: 42);
+Console.WriteLine("=== Ranking Trainer (DB Model) ===");
 
-string moviesPath = Path.Combine("Data", "movies.csv");
-string ratingsPath = Path.Combine("Data", "ratings.csv");
+string solutionRoot = Directory.GetParent(AppContext.BaseDirectory)!
+    .Parent!.Parent!.Parent!.Parent!.FullName;
 
-Console.WriteLine("Loading MovieLens dataset...");
+string dbPath = Path.Combine(solutionRoot, "AppData", "movies.db");
 
-var loader = new MovieLensDataLoader(mlContext);
+Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
 
-var movies = loader.LoadMovies(moviesPath);
-var ratings = loader.LoadRatings(ratingsPath);
+string conn = $"Data Source={dbPath}";
 
-Console.WriteLine($"Movies: {movies.Count}");
-Console.WriteLine($"Ratings: {ratings.Count}");
+// Setup DbContext
+var dbOptions = new DbContextOptionsBuilder<MovieCatalogueDbContext>()
+    .UseSqlite(conn)
+    .Options;
 
-var aggregates = loader.ComputeAggregates(ratings);
+using var db = new MovieCatalogueDbContext(dbOptions);
 
-var builder = new TrainingRowBuilder();
+// Ensure DB exists
+db.Database.EnsureCreated();
 
-var trainingRows = builder.Build(movies, aggregates);
+if (!db.Movies.Any())
+{
+    Console.WriteLine("No movies found in DB. Run DataImporter first.");
+    return;
+}
+
+// Load training rows from DB
+var loader = new MovieCatalogueDataLoader(db);
+var trainingRows = await loader.LoadTrainingRowsAsync();
+
+Console.WriteLine($"Loaded {trainingRows.Count} training rows.");
+
+// Train model
+var mlContext = new MLContext();
 
 var trainer = new RankingModelTrainer(mlContext);
 
 var result = trainer.Train(trainingRows);
 
+// Save model
 trainer.SaveModel(result.Model, result.Schema);
 
-Console.WriteLine("Model training complete.");
-
-Console.WriteLine($"Training rows: {trainingRows.Count}");
-Console.WriteLine("Sample:");
-
-foreach (var row in trainingRows.Take(3))
-{
-    Console.WriteLine(
-        $"Rating={row.AvgRating:F2}, VotesLog={row.VoteCountLog:F2}, Label={row.Label:F2}");
-}
+Console.WriteLine("=== Training Complete ===");

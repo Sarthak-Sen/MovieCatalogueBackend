@@ -12,10 +12,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<MovieCatalogueDbContext>(options =>
-    options.UseSqlite("Data Source=movies.db"));
+string solutionRoot = Directory.GetParent(AppContext.BaseDirectory)!
+    .Parent!.Parent!.Parent!.Parent!.FullName;
+
+string dbPath = Path.Combine(solutionRoot, "AppData", "movies.db");
+
+Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+
+string conn = $"Data Source={dbPath}";
+
+builder.Services.AddDbContext<MovieCatalogueDbContext>(opt =>
+    opt.UseSqlite(conn)
+);
 
 builder.Services.AddScoped<IMovieSearchService, MovieSearchService>();
+builder.Services.AddSingleton<IMovieRankingService, MovieRankingService>();
 
 var app = builder.Build();
 
@@ -25,42 +36,8 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<MovieCatalogueDbContext>();
 
     db.Database.EnsureCreated();
-
-    if (!db.Movies.Any())
-    {
-        db.Movies.AddRange(
-            new MovieDTO
-            {
-                Title = "Inception",
-                ReleaseYear = 2010,
-                Genres = "Action|Sci-Fi",
-                AvgRating = 8.8f,
-                VoteCount = 2000000,
-                PosterUrl = "https://via.placeholder.com/200x300?text=Inception"
-            },
-            new MovieDTO
-            {
-                Title = "Interstellar",
-                ReleaseYear = 2014,
-                Genres = "Drama|Sci-Fi",
-                AvgRating = 8.6f,
-                VoteCount = 1800000,
-                PosterUrl = "https://via.placeholder.com/200x300?text=Interstellar"
-            },
-            new MovieDTO
-            {
-                Title = "The Dark Knight",
-                ReleaseYear = 2008,
-                Genres = "Action|Crime",
-                AvgRating = 9.0f,
-                VoteCount = 2500000,
-                PosterUrl = "https://via.placeholder.com/200x300?text=Dark+Knight"
-            }
-        );
-
-        db.SaveChanges();
-    }
 }
+
 
 
 // Configure the HTTP request pipeline.

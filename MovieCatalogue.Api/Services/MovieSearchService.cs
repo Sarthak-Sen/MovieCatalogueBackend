@@ -8,10 +8,12 @@ namespace MovieCatalogue.Api.Services
     public class MovieSearchService : IMovieSearchService
     {
         private readonly MovieCatalogueDbContext _context;
+        private readonly IMovieRankingService _rankingService;
 
-        public MovieSearchService(MovieCatalogueDbContext context)
+        public MovieSearchService(MovieCatalogueDbContext context, IMovieRankingService rankingService)
         {
             _context = context;
+            _rankingService = rankingService;
         }
 
         public async Task<PagedResult<MovieDTO>> SearchAsync(MovieSearchRequest request)
@@ -46,24 +48,24 @@ namespace MovieCatalogue.Api.Services
                 query = query.Where(m => request.Genres.Any(g => m.Genres!.ToLower().Contains(g.ToLower())));
             }
 
+            var candidates = await query.ToListAsync();
+
+            var ranked = candidates
+                .Select(movie => new
+                {
+                    Movie = movie,
+                    Score = _rankingService.ComputeFinalScore(movie, request)
+                })
+                .OrderByDescending(x => x.Score)
+                .ToList();
+
             // Pagination
+            int totalCount = ranked.Count;
+
             var page = request.Page < 1 ? 1 : request.Page;
             var pageSize = request.PageSize > 50 ? 50 : request.PageSize;
 
-            var totalCount = await query.CountAsync();
-
-            var results = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
-
-            foreach (var movie in results)
-            {
-                var features = MovieFeatureEngineer.Build(movie, request);
-
-                Console.WriteLine(
-                    $"{movie.Title} → Rating={features.AvgRating}, " +
-                    $"VotesLog={features.VoteCountLog}, " +
-                    $"Recency={features.RecencyScore}, " +
-                    $"GenreMatch={features.GenreMatchScore}");
-            }
+            var results = ranked.Skip((page - 1) * pageSize).Take(pageSize).Select(x => x.Movie).ToList();
 
             return new PagedResult<MovieDTO>
             {

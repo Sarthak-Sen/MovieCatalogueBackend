@@ -21,12 +21,30 @@ namespace MovieCatalogue.Api.Services
 
         public float ComputeFinalScore(MovieDTO movie, MovieSearchRequest request)
         {
-            throw new NotImplementedException();
+
+            var input = new MovieModelInput
+            {
+                AvgRating = movie.AvgRating,
+                VoteCountLog = (float)Math.Log(movie.VoteCount + 1),
+                RecencyScore = 1f / Math.Max(1, DateTime.Now.Year - movie.ReleaseYear)
+            };
+
+            float mlScore = _engine.Predict(input).Score;
+
+            float genreBoost = ComputeGenreBoost(movie.Genres, request.Genres);
+
+            return mlScore + genreBoost;
         }
 
-        public float ScoreMovie(MovieDTO movie)
+        private float ComputeGenreBoost(string movieGenres, List<string>? requestedGenres)
         {
-            throw new NotImplementedException();
+            if (requestedGenres == null || requestedGenres.Count == 0)
+                return 0f;
+
+            int matches = requestedGenres.Count(g =>
+                movieGenres.Contains(g, StringComparison.OrdinalIgnoreCase));
+
+            return matches / (float)requestedGenres.Count;
         }
     }
 }

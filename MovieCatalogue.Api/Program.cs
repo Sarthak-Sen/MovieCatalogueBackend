@@ -16,7 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddDbContext<MovieCatalogueDbContext>(options =>
 {
-    if (connectionString != null && connectionString.Contains("Host="))
+    if (builder.Environment.IsProduction())
     {
         // PostgreSQL (Production)
         options.UseNpgsql(connectionString);

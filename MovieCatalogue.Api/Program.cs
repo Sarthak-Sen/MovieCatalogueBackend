@@ -12,15 +12,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-string solutionRoot = Directory.GetParent(AppContext.BaseDirectory)!
-    .Parent!.Parent!.Parent!.Parent!.FullName;
-
-string dbPath = Path.Combine(solutionRoot, "AppData", "movies.db");
-
-Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-
-string conn = $"Data Source={dbPath}";
-
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<MovieCatalogueDbContext>(options =>

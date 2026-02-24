@@ -31,11 +31,15 @@ builder.Services.AddDbContext<MovieCatalogueDbContext>(options =>
 builder.Services.AddScoped<IMovieSearchService, MovieSearchService>();
 builder.Services.AddSingleton<IMovieRankingService, MovieRankingService>();
 
+var allowedOrigins = builder.Configuration
+    .GetSection("AllowedOrigins")
+    .Get<string[]>() ?? Array.Empty<string>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod();
     });

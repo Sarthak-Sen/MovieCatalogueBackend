@@ -38,6 +38,7 @@ namespace MovieCatalogue.DataImporter.Services
 
                 entities.Add(new MovieDTO
                 {
+                    Id = movie.MovieId,
                     Title = movie.Title,
                     Genres = movie.Genres,
                     ReleaseYear = ExtractYear(movie.Title),
